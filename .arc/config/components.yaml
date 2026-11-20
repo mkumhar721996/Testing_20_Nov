@@ -1,0 +1,57 @@
+version: 2
+components:
+  comp_web_app:
+    name: Web App
+    repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
+    kind: web_ui
+    integrations:
+    - to: comp_core_api
+      interaction: sync
+      via: http
+      status: planned
+      evidence: 'proposed: browser client calls the backend'
+    - to: comp_identity_provider
+      interaction: sync
+      via: http
+      auth:
+        scheme: oidc
+        idp: comp_identity_provider
+      status: planned
+      evidence: 'proposed: browser sign-in via the managed provider'
+  comp_core_api:
+    name: Core API
+    repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
+    kind: api_service
+    integrations:
+    - to: comp_relational_database
+      interaction: shared-storage
+      status: planned
+      evidence: 'proposed: API persists data'
+    - to: comp_identity_provider
+      interaction: sync
+      via: http
+      auth:
+        scheme: jwt
+        idp: comp_identity_provider
+      status: planned
+      evidence: 'proposed: API validates tokens issued by the provider'
+  comp_relational_database:
+    name: Relational Database
+    repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
+    kind: infrastructure
+  comp_identity_provider:
+    name: Identity Provider
+    repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
+    kind: managed_service
+    identity:
+      provider: cognito
+      hosting: managed
+      protocols:
+      - oidc
+      - oauth2
+      - jwt
+      flows:
+      - authorization_code_pkce
+      - refresh_token
+      token: jwt
+      user_store: provider
