@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comp — app shell</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype-utils.css">
+  <style>
+    .shell { display: flex; flex-direction: column; min-height: 100vh; }
+    .shell-header {
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-bg); border-bottom: var(--border-width) solid var(--color-border);
+    }
+    .shell-brand { display: inline-flex; align-items: center; min-width: var(--size-tap, 44px); min-height: var(--size-tap, 44px); font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-fg); text-decoration: none; margin-right: auto; }
+    .shell-menu-btn { min-height: var(--size-tap, 44px); min-width: var(--size-tap, 44px); }
+    .shell-nav { flex-basis: 100%; order: 3; }
+    .shell-nav[hidden] { display: none !important; }
+    .shell-nav.is-open { display: block !important; }
+    .shell-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+    .shell-link {
+      display: flex; align-items: center; min-height: var(--size-tap, 44px); min-width: var(--size-tap, 44px); padding: 0 var(--space-2);
+      border-radius: var(--radius-md); color: var(--color-fg); text-decoration: none; font-weight: var(--font-weight-medium);
+    }
+    .shell-link:hover { background: var(--color-surface); color: var(--color-fg); }
+    .shell-link[aria-current="page"] { background: var(--color-info-bg); color: var(--color-info); }
+    .shell-layout { flex: 1; width: 100%; max-width: var(--size-container); margin-inline: auto; padding: var(--space-4) var(--space-3); }
+    .shell-footer {
+      display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); justify-content: space-between;
+      padding: var(--space-3); border-top: var(--border-width) solid var(--color-border);
+      color: var(--color-fg-muted); font-size: var(--font-size-sm);
+    }
+    .shell-footer nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--space-3); }
+    .shell-footer nav a { display: inline-flex; align-items: center; min-height: var(--size-tap, 44px); min-width: var(--size-tap, 44px); }
+    /* 48rem: the width where the section links fit beside the brand (media queries cannot read tokens). */
+    @media (min-width: 48rem) {
+      .shell-menu-btn { display: none; }
+      .shell-nav, .shell-nav[hidden] { display: block !important; flex-basis: auto; order: 0; margin-right: auto; }
+      .shell-nav ul { flex-direction: row; }
+      .shell-brand { margin-right: var(--space-3); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" data-arc-shell>
+    <header class="shell-header" data-arc-shell-part="header">
+      <a class="shell-brand" href="#">Comp</a>
+      <button type="button" class="btn btn-secondary shell-menu-btn" data-toggle="main-nav" aria-controls="main-nav" aria-expanded="false">Menu</button>
+      <nav id="main-nav" class="shell-nav" data-arc-shell-part="nav" aria-label="Main" hidden>
+        <ul>
+          <li><a class="shell-link" href="#" data-nav-key="overview">Overview</a></li>
+          <li><a class="shell-link" href="#" data-nav-key="items">Items</a></li>
+          <li><a class="shell-link" href="#" data-nav-key="reports">Reports</a></li>
+          <li><a class="shell-link" href="#" data-nav-key="settings">Settings</a></li>
+        </ul>
+      </nav>
+      <a class="shell-link" href="#" data-nav-key="account">Account</a>
+    </header>
+    <div class="shell-layout">
+      <main id="content" data-arc-content></main>
+    </div>
+    <footer class="shell-footer" data-arc-shell-part="footer">
+      <span>Comp</span>
+      <nav aria-label="Footer">
+        <ul>
+          <li><a href="#">Help</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>
