@@ -4,6 +4,7 @@ components:
     name: Web App
     repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
     kind: web_ui
+    directory: apps/web
     integrations:
     - to: comp_core_api
       interaction: sync
@@ -18,13 +19,24 @@ components:
         idp: comp_identity_provider
       status: planned
       evidence: 'proposed: browser sign-in via the managed provider'
+    stack:
+      choices:
+        styling: tailwind
+        language: typescript
+        framework: react-vite
+        package_manager: pnpm
+        testing_tool_e2e: playwright
+        testing_tool_unit: vitest
+      notes: database not applicable — reaches data only through the Core API
   comp_core_api:
     name: Core API
     repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
     kind: api_service
+    directory: services/api
     integrations:
     - to: comp_relational_database
       interaction: shared-storage
+      via: postgresql
       status: planned
       evidence: 'proposed: API persists data'
     - to: comp_identity_provider
@@ -35,10 +47,23 @@ components:
         idp: comp_identity_provider
       status: planned
       evidence: 'proposed: API validates tokens issued by the provider'
+    stack:
+      choices:
+        database: postgresql
+        language: python
+        framework: fastapi
+        package_manager: uv
+        testing_tool_e2e: pytest + httpx
+        testing_tool_unit: pytest
+      notes: styling not applicable — API only
   comp_relational_database:
     name: Relational Database
     repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
     kind: infrastructure
+    stack:
+      choices:
+        managed_service: PostgreSQL on Amazon RDS
+      notes: fits AWS container deployment; matches the Core API's PostgreSQL
   comp_identity_provider:
     name: Identity Provider
     repo_ref: conn-github-3235590cfb264ac5aa8ddedcc879361e
@@ -55,3 +80,7 @@ components:
       - refresh_token
       token: jwt
       user_store: provider
+    stack:
+      choices:
+        managed_service: Amazon Cognito
+      notes: named in the approved architecture
