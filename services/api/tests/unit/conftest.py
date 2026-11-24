@@ -1,5 +1,8 @@
+import os
 from collections.abc import Iterator
 from uuid import UUID, uuid4
+
+os.environ.setdefault("API_DEFAULT_ORGANISATION_ID", "00000000-0000-0000-0000-0000000000a1")
 
 import httpx
 import pytest

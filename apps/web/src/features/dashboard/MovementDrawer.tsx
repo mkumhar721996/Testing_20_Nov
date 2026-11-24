@@ -35,9 +35,14 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
     return () => opener?.focus()
   }, [loadItems])
 
+  // Closing mid-save would drop a failure and the entered values.
+  function dismiss() {
+    if (!saving) onClose()
+  }
+
   function onKeyDown(e: KeyboardEvent<HTMLElement>) {
     if (e.key === 'Escape') {
-      onClose()
+      dismiss()
       return
     }
     if (e.key !== 'Tab' || !drawerRef.current) return
@@ -81,7 +86,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
 
   return (
     <>
-      <div className="backdrop" onClick={onClose} />
+      <div className="backdrop" onClick={dismiss} />
       <aside
         ref={drawerRef}
         className="drawer"
@@ -97,7 +102,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
             type="button"
             className="btn btn-ghost btn-icon"
             aria-label="Close record movement"
-            onClick={onClose}
+            onClick={dismiss}
           >
             <svg className="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18" />
@@ -205,7 +210,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
             </label>
           </fieldset>
           <div className="drawer-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button type="button" className="btn btn-secondary" onClick={dismiss}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={saving}>

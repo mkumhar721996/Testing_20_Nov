@@ -17,8 +17,7 @@
     "devloop": "tsc -b && vitest run"
   },
   "dependencies": {
-    "@testing-library/user-event": "^14.6.13",
-    "react": "^19.0.0",
+    "react":"^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
@@ -26,6 +25,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -133,3 +133,15 @@ it('offers to retry when items fail to load', async () => {
   await user.click(await screen.findByRole('button', { name: 'Try again' }))
   expect(await screen.findByRole('option', { name: 'Item A' })).toBeInTheDocument()
 })
+
+it('cannot be dismissed while a save is in flight (AC 10, 11)', async () => {
+  vi.mocked(recordMovement).mockReturnValue(new Promise(() => {}))
+  const user = await open()
+  await user.selectOptions(screen.getByLabelText('Item'), 'item-a-id')
+  await user.type(screen.getByLabelText('Quantity'), '5')
+  await save(user)
+  await user.keyboard('{Escape}')
+  await user.click(screen.getByRole('button', { name: 'Close record movement' }))
+  await user.click(screen.getByRole('button', { name: 'Cancel' }))
+  expect(onClose).not.toHaveBeenCalled()
+})
