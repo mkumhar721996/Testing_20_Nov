@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="API_")
+    model_config = SettingsConfigDict(env_prefix="API_", env_file="dev.env")
 
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/core_api"
     # Stopgap for the caller's organisation until token verification exists (ADR-0004).

@@ -18,3 +18,4 @@
 .error-actions { margin-top: var(--space-2); }
 .alert > div { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
 .icon { width: var(--size-icon); height: var(--size-icon); }
+.tab[aria-pressed="true"] { color: var(--color-primary); border-bottom-color: var(--color-primary); }
