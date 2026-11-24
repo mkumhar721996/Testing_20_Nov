@@ -1,0 +1,3 @@
+import os
+
+os.environ.setdefault("API_DEFAULT_ORGANISATION_ID", "00000000-0000-0000-0000-0000000000a1")
