@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import App from './App'
 
-it('renders the heading', () => {
+it('renders the Dashboard loading state', () => {
+  vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
   render(<App />)
-  expect(screen.getByRole('heading', { name: 'Web App' })).toBeInTheDocument()
+  expect(screen.getByRole('status')).toBeInTheDocument()
 })
