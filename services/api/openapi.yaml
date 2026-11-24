@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: comp_core_api
+  version: 0.1.0
+paths:
+  /attendance/records:
+    get:
+      summary: The caller's own attendance records, newest first
+      security: [{bearerAuth: []}]
+      responses:
+        "200":
+          description: Records of the signed-in employee only
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/AttendanceRecord"}
+        "401": {description: Missing or invalid token}
+  /attendance/clock-in:
+    post:
+      summary: Clock the caller in
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ClockRequest"}
+      responses:
+        "201":
+          description: The new open record
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AttendanceRecord"}
+        "401": {description: Missing or invalid token}
+        "403": {description: "Request named another employee (code other_employee)"}
+        "409": {description: "Already clocked in (code already_clocked_in); nothing changed"}
+  /attendance/clock-out:
+    post:
+      summary: Clock the caller out
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ClockRequest"}
+      responses:
+        "200":
+          description: The closed record
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AttendanceRecord"}
+        "401": {description: Missing or invalid token}
+        "403": {description: "Request named another employee (code other_employee)"}
+        "409": {description: "Not clocked in (code not_clocked_in); nothing added"}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer}
+  schemas:
+    ClockRequest:
+      type: object
+      properties:
+        employee_id: {type: [string, "null"], format: uuid}
+    AttendanceRecord:
+      type: object
+      required: [id, date, clock_in_at, clock_out_at]
+      properties:
+        id: {type: string, format: uuid}
+        date: {type: string, format: date}
+        clock_in_at: {type: string, format: date-time}
+        clock_out_at: {type: [string, "null"], format: date-time}
+    Refusal:
+      type: object
+      description: "409/403 body is {detail: Refusal}"
+      required: [code, message]
+      properties:
+        code: {enum: [already_clocked_in, not_clocked_in, other_employee]}
+        message: {type: string}

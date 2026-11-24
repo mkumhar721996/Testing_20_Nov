@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('home page renders heading', async ({ page }) => {
+  await page.route('**/attendance/records', (route) => route.fulfill({ json: [] }))
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Web App' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'My attendance' })).toBeVisible()
 })
