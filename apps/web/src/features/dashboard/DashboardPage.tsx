@@ -157,14 +157,13 @@ export function DashboardPage() {
         <div className="card">
           <div className="card-head">
             <h3>Recent movements</h3>
-            <div className="tabs" role="tablist" aria-label="Filter movements">
+            <div className="tabs" role="group" aria-label="Filter movements">
               {FILTERS.map((f) => (
                 <button
                   key={f.id}
                   type="button"
                   className="tab"
-                  role="tab"
-                  aria-selected={filter === f.id}
+                  aria-pressed={filter === f.id}
                   onClick={() => setFilter(f.id)}
                 >
                   {f.label}

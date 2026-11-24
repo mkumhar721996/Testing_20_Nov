@@ -60,6 +60,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    if (saving) return
     const found = validateMovement({ itemId, quantity, direction }, items)
     setErrors(found)
     setSaveFailed(false)
@@ -122,7 +123,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
             </div>
           )}
           {itemsFailed && (
-            <div className="alert alert-danger">
+            <div className="alert alert-danger" role="alert">
               <div>
                 <strong>The items could not be loaded.</strong>
                 <div className="error-actions">
@@ -213,7 +214,7 @@ export function MovementDrawer({ onClose, onSaved }: Props) {
             <button type="button" className="btn btn-secondary" onClick={dismiss}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+            <button type="submit" className="btn btn-primary" aria-disabled={saving}>
               {saving ? 'Saving…' : 'Save movement'}
             </button>
           </div>
