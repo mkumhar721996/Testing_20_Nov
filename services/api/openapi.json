@@ -1,0 +1,103 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "comp_core_api", "version": "0.1.0" },
+  "paths": {
+    "/items": {
+      "get": {
+        "operationId": "listItems",
+        "responses": {
+          "200": {
+            "description": "The caller organisation's items, ordered by name",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ItemRead" } } } }
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "operationId": "getDashboard",
+        "responses": {
+          "200": {
+            "description": "Dashboard figures",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DashboardRead" } } }
+          }
+        }
+      }
+    },
+    "/stock-movements": {
+      "post": {
+        "operationId": "recordMovement",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MovementCreate" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Movement recorded",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MovementRead" } } }
+          },
+          "404": { "description": "detail.code is item_not_found" },
+          "409": { "description": "detail.code is insufficient_stock; detail.on_hand is the units on hand" },
+          "422": { "description": "Quantity of zero or less, or an unknown direction" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Direction": { "type": "string", "enum": ["in", "out"] },
+      "ItemRead": {
+        "type": "object",
+        "required": ["id", "name", "bin", "on_hand"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "bin": { "type": "string" },
+          "on_hand": { "type": "integer" }
+        }
+      },
+      "RecentMovement": {
+        "type": "object",
+        "required": ["id", "occurred_at", "item_name", "bin", "direction", "quantity"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "item_name": { "type": "string" },
+          "bin": { "type": "string" },
+          "direction": { "$ref": "#/components/schemas/Direction" },
+          "quantity": { "type": "integer" }
+        }
+      },
+      "DashboardRead": {
+        "type": "object",
+        "required": ["items_in_stock", "movements_today", "item_count", "recent_movements"],
+        "properties": {
+          "items_in_stock": { "type": "integer" },
+          "movements_today": { "type": "integer" },
+          "item_count": { "type": "integer" },
+          "recent_movements": { "type": "array", "items": { "$ref": "#/components/schemas/RecentMovement" } }
+        }
+      },
+      "MovementCreate": {
+        "type": "object",
+        "required": ["item_id", "quantity", "direction"],
+        "properties": {
+          "item_id": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "integer", "exclusiveMinimum": 0 },
+          "direction": { "$ref": "#/components/schemas/Direction" }
+        }
+      },
+      "MovementRead": {
+        "type": "object",
+        "required": ["id", "item_id", "quantity", "direction", "occurred_at"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "item_id": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "integer" },
+          "direction": { "$ref": "#/components/schemas/Direction" },
+          "occurred_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}
