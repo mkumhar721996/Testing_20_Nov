@@ -1,0 +1,24 @@
+.kv { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2) var(--space-3); margin: 0; }
+.kv dt { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+.kv dd { margin: 0 0 var(--space-2); overflow-wrap: anywhere; }
+/* 40rem and 11rem: media queries cannot read tokens and no token covers the label column. */
+@media (min-width: 40rem) {
+  .kv { grid-template-columns: 11rem minmax(0, 1fr); }
+  .kv dd { margin: 0; }
+}
+.page-head { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.who { display: flex; gap: var(--space-3); align-items: center; min-width: 0; }
+.who h1 { margin: 0; font-size: var(--font-size-xl); line-height: var(--line-height-tight); overflow-wrap: anywhere; }
+.card-head { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.card-head .card-title { margin: 0; }
+.backlink { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--size-tap); background: none; border: 0; padding: 0; color: var(--color-primary); font: inherit; cursor: pointer; text-decoration: none; }
+.icon { width: var(--size-icon); height: var(--size-icon); flex: none; }
+.narrow { max-width: 40rem; margin-inline: auto; }
+textarea.input { min-height: 5.5rem; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+.drawer-head h2 { margin: 0; font-size: var(--font-size-lg); }
+.dd-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.skel-row { display: flex; flex-direction: column; gap: var(--space-2); }
+.skel-line { height: var(--size-skeleton); }
+.page-title { margin: 0; font-size: var(--font-size-xl); }
+.preline { white-space: pre-line; }

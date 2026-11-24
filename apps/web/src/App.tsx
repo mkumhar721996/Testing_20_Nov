@@ -1,7 +1,17 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
+import CreateEmployeePage from './features/employees/CreateEmployeePage'
+import EmployeeProfilePage from './features/employees/EmployeeProfilePage'
+import AppShell from './shell/AppShell'
+
 export default function App() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50">
-      <h1 className="text-3xl font-bold text-slate-900">Web App</h1>
-    </main>
+    <AppShell>
+      <Routes>
+        <Route path="/" element={<Navigate to="/employees/me" replace />} />
+        <Route path="/employees/new" element={<CreateEmployeePage />} />
+        <Route path="/employees/me" element={<EmployeeProfilePage />} />
+        <Route path="/employees/:employeeId" element={<EmployeeProfilePage />} />
+      </Routes>
+    </AppShell>
   )
 }

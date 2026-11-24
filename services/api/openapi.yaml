@@ -1,0 +1,183 @@
+openapi: 3.1.0
+info:
+  title: comp_core_api
+  version: 0.1.0
+  description: >
+    Employee profiles. Every route needs a bearer token (401 otherwise). Records are scoped to the
+    caller's organisation; another organisation's id behaves as not found.
+paths:
+  /employees:
+    post:
+      summary: Create an employee profile (HR admin). One profile per account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmployeeCreate' }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/EmployeeFullView' } } } }
+        '403': { description: Caller is not an HR admin }
+        '409': { description: The account already has a profile, content: { application/json: { schema: { $ref: '#/components/schemas/DuplicateProfile' } } } }
+        '422': { description: Invalid input, or the account or manager is not in the organisation }
+  /employees/me:
+    get:
+      summary: The caller's own profile
+      responses:
+        '200': { $ref: '#/components/responses/EmployeeView' }
+        '404': { description: No profile }
+  /employees/options:
+    get:
+      summary: Accounts, departments and managers for the HR forms (HR admin)
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/EmployeeOptions' } } } }
+        '403': { description: Caller is not an HR admin }
+  /employees/{employee_id}:
+    parameters: [{ $ref: '#/components/parameters/EmployeeId' }]
+    get:
+      summary: One profile. Inactive records are 404 for everyone but HR admins.
+      responses:
+        '200': { $ref: '#/components/responses/EmployeeView' }
+        '404': { description: Not found, or not visible to the caller }
+  /employees/{employee_id}/work:
+    parameters: [{ $ref: '#/components/parameters/EmployeeId' }]
+    patch:
+      summary: Change name, job title, department and manager (HR admin, active records)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkDetailsUpdate' }
+      responses:
+        '200': { $ref: '#/components/responses/EmployeeView' }
+        '403': { description: Caller is not an HR admin }
+        '404': { description: Not found, or not visible to the caller }
+        '409': { description: Record is inactive }
+        '422': { description: Invalid input or manager }
+  /employees/{employee_id}/personal:
+    parameters: [{ $ref: '#/components/parameters/EmployeeId' }]
+    patch:
+      summary: Change own phone, home address and emergency contact (the employee, active record)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PersonalDetailsUpdate' }
+      responses:
+        '200': { $ref: '#/components/responses/EmployeeView' }
+        '403': { description: Caller is not the employee }
+        '404': { description: Not found, or not visible to the caller }
+        '409': { description: Record is inactive }
+        '422': { description: Invalid input, or a work field was sent }
+  /employees/{employee_id}/leaver:
+    parameters: [{ $ref: '#/components/parameters/EmployeeId' }]
+    post:
+      summary: Mark an active employee as a leaver (HR admin)
+      responses:
+        '200': { $ref: '#/components/responses/EmployeeView' }
+        '403': { description: Caller is not an HR admin }
+        '404': { description: Not found }
+        '409': { description: Already inactive }
+components:
+  parameters:
+    EmployeeId: { name: employee_id, in: path, required: true, schema: { type: string, format: uuid } }
+  responses:
+    EmployeeView:
+      description: >
+        EmployeeFullView for the employee themselves and HR admins; EmployeeWorkView, with no
+        `personal` key at all, for everyone else.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - { $ref: '#/components/schemas/EmployeeFullView' }
+              - { $ref: '#/components/schemas/EmployeeWorkView' }
+  schemas:
+    WorkDetailsUpdate:
+      type: object
+      additionalProperties: false
+      required: [name, job_title, department, manager_id]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        job_title: { type: string, minLength: 1, maxLength: 200 }
+        department: { type: string, minLength: 1, maxLength: 200 }
+        manager_id: { type: string, format: uuid }
+    EmployeeCreate:
+      allOf:
+        - { $ref: '#/components/schemas/WorkDetailsUpdate' }
+        - type: object
+          required: [account_id]
+          properties:
+            account_id: { type: string, format: uuid }
+    PersonalDetailsUpdate:
+      type: object
+      additionalProperties: false
+      required: [personal_phone, home_address, emergency_contact_name, emergency_contact_phone]
+      properties:
+        personal_phone: { type: string, minLength: 1, maxLength: 40 }
+        home_address: { type: string, minLength: 1, maxLength: 1000 }
+        emergency_contact_name: { type: string, minLength: 1, maxLength: 200 }
+        emergency_contact_phone: { type: string, minLength: 1, maxLength: 40 }
+    PersonalDetails:
+      type: object
+      required: [personal_phone, home_address, emergency_contact_name, emergency_contact_phone]
+      properties:
+        personal_phone: { type: [string, 'null'] }
+        home_address: { type: [string, 'null'] }
+        emergency_contact_name: { type: [string, 'null'] }
+        emergency_contact_phone: { type: [string, 'null'] }
+    Viewer:
+      type: object
+      required: [can_edit_work, can_edit_personal, can_mark_leaver]
+      properties:
+        can_edit_work: { type: boolean }
+        can_edit_personal: { type: boolean }
+        can_mark_leaver: { type: boolean }
+    EmployeeWorkView:
+      type: object
+      required: [id, name, job_title, department, manager_id, manager_name, work_email, status, viewer]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        job_title: { type: string }
+        department: { type: string }
+        manager_id: { type: [string, 'null'], format: uuid }
+        manager_name: { type: [string, 'null'] }
+        work_email: { type: string }
+        status: { type: string, enum: [active, inactive] }
+        viewer: { $ref: '#/components/schemas/Viewer' }
+    EmployeeFullView:
+      allOf:
+        - { $ref: '#/components/schemas/EmployeeWorkView' }
+        - type: object
+          required: [personal]
+          properties:
+            personal: { $ref: '#/components/schemas/PersonalDetails' }
+    DuplicateProfile:
+      type: object
+      required: [detail, existing_employee_id]
+      properties:
+        detail: { type: string }
+        existing_employee_id: { type: string, format: uuid }
+    EmployeeOptions:
+      type: object
+      required: [accounts, departments, managers]
+      properties:
+        accounts:
+          type: array
+          items:
+            type: object
+            required: [id, name, email, has_profile]
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              email: { type: string }
+              has_profile: { type: boolean }
+        departments: { type: array, items: { type: string } }
+        managers:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
