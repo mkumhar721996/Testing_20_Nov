@@ -1,1 +1,12 @@
 @import "tailwindcss";
+@import "../design/tokens.css";
+@import "../design/prototype-utils.css";
+
+.skel-grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(var(--size-grid-min), 100%), 1fr)); }
+.skel-card { display: flex; flex-direction: column; gap: var(--space-2); }
+.skel-tall { height: calc(var(--size-skeleton) * 10); }
+.skel-wide { width: 60%; }
+.skel-short { width: 30%; }
+.error-actions { margin-top: var(--space-2); }
+.alert > div { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+svg.icon { width: 1.25em; height: 1.25em; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
