@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { getDashboard, getItems, recordMovement } from '../../api/client'
@@ -71,4 +71,61 @@ it('shows the empty state when there are no items', async () => {
   vi.mocked(getDashboard).mockResolvedValue(dashboard(0, 0))
   render(<DashboardPage />)
   expect(await screen.findByText('No stock recorded yet')).toBeInTheDocument()
+})
+
+const SOON_LABELS = ['FD', 'PF', 'NPS', 'Transfer money', 'Pay a bill', 'Deposit a cheque']
+const soonButton = (label: string) => screen.getByRole('button', { name: new RegExp(`^${label}`) })
+
+async function renderLoaded() {
+  render(<DashboardPage />)
+  await screen.findByRole('heading', { name: 'Warehouse overview' })
+}
+
+it('shows the logo and avatar in the header (AC 1)', async () => {
+  await renderLoaded()
+  expect(screen.getByText('Banking')).toBeInTheDocument()
+  expect(screen.getByRole('img', { name: /signed in as/i })).toBeInTheDocument()
+})
+
+it('shows FD, PF and NPS in the navigation (AC 2)', async () => {
+  await renderLoaded()
+  const nav = screen.getByRole('navigation', { name: 'Banking products' })
+  for (const n of ['FD', 'PF', 'NPS']) {
+    expect(within(nav).getByRole('button', { name: new RegExp(`^${n}`) })).toBeInTheDocument()
+  }
+})
+
+it('shows the three quick actions (AC 3)', async () => {
+  await renderLoaded()
+  const group = screen.getByRole('group', { name: 'Quick actions' })
+  for (const a of ['Transfer money', 'Pay a bill', 'Deposit a cheque']) {
+    expect(within(group).getByRole('button', { name: new RegExp(a) })).toBeInTheDocument()
+  }
+})
+
+it('marks every destination coming soon (AC 4)', async () => {
+  await renderLoaded()
+  for (const label of SOON_LABELS) {
+    expect(soonButton(label)).toHaveTextContent(/coming soon/i)
+  }
+})
+
+it('stays on the Dashboard and changes no data when a destination is activated (AC 5, 6)', async () => {
+  await renderLoaded()
+  for (const label of SOON_LABELS) {
+    const button = soonButton(label)
+    expect(button).toBeDisabled()
+    fireEvent.click(button)
+  }
+  expect(screen.getByRole('heading', { name: 'Warehouse overview' })).toBeInTheDocument()
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(recordMovement).not.toHaveBeenCalled()
+  expect(getDashboard).toHaveBeenCalledTimes(1)
+})
+
+it('shows quick actions only when the dashboard has items', async () => {
+  vi.mocked(getDashboard).mockResolvedValue(dashboard(0, 0))
+  render(<DashboardPage />)
+  await screen.findByText('No stock recorded yet')
+  expect(screen.queryByRole('group', { name: 'Quick actions' })).not.toBeInTheDocument()
 })

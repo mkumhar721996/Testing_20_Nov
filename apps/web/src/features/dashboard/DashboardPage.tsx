@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { RecentMovement } from '../../api/types'
 import './dashboard.css'
+import { DashboardTopRow, ProductNav, QuickActions } from './DashboardShell'
 import { MovementDrawer } from './MovementDrawer'
 import { Toast } from './Toast'
 import { useDashboard } from './useDashboard'
@@ -123,7 +124,10 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="stack-lg">
+      <DashboardTopRow />
+      <div className="dash">
+        <ProductNav />
+        <div className="dash-main stack-lg">
         <div className="page-head">
           <div>
             <h1>Warehouse overview</h1>
@@ -142,6 +146,8 @@ export function DashboardPage() {
             Record movement
           </button>
         </div>
+
+        <QuickActions />
 
         <div className="grid" aria-live="polite">
           <div className="card">
@@ -172,6 +178,7 @@ export function DashboardPage() {
             </div>
           </div>
           <MovementsTable rows={rows} />
+        </div>
         </div>
       </div>
 
