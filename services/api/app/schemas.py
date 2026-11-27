@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -44,3 +44,37 @@ class DashboardRead(BaseModel):
     movements_today: int
     item_count: int
     recent_movements: list[RecentMovement]
+
+
+class NamedRef(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+
+
+class EmployeeRead(BaseModel):
+    id: UUID
+    name: str
+    job: NamedRef | None
+    department: NamedRef
+    manager: NamedRef
+    viewer: Literal["hr", "self", "manager"]
+
+
+class StructureUpdate(BaseModel):
+    job_id: UUID | None = None
+    department_id: UUID | None = None
+    manager_id: UUID | None = None
+    effective_date: date | None = None
+
+
+class HistoryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    field: Literal["job", "department", "manager"]
+    from_name: str | None
+    to_name: str
+    effective_date: date
+    recorded_at: datetime

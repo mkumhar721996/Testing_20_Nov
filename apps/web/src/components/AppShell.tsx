@@ -9,10 +9,14 @@ const SECTIONS = [
   { id: 'settings', label: 'Settings' },
 ]
 
-// Only Overview exists yet; the other links are inert placeholders.
-const CURRENT_SECTION = 'overview'
+export type SectionId = 'overview' | 'items' | 'reports' | 'settings'
 
-export function AppShell({ children }: { children: ReactNode }) {
+// Only Overview and Items exist yet; the other links are inert placeholders.
+const NAVIGABLE: SectionId[] = ['overview', 'items']
+
+type Props = { current?: SectionId; onNavigate?: (section: SectionId) => void; children: ReactNode }
+
+export function AppShell({ current = 'overview', onNavigate, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -43,7 +47,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className="shell-link"
                   href="#"
                   data-nav-key={s.id}
-                  aria-current={s.id === CURRENT_SECTION ? 'page' : undefined}
+                  aria-current={s.id === current ? 'page' : undefined}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (NAVIGABLE.includes(s.id as SectionId)) {
+                      onNavigate?.(s.id as SectionId)
+                      setMenuOpen(false)
+                    }
+                  }}
                 >
                   {s.label}
                 </a>
