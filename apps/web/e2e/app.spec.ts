@@ -58,3 +58,53 @@ test('keeps the drawer and values when the save fails', async ({ page }) => {
   )
   await expect(page.getByLabel('Quantity')).toHaveValue('5')
 })
+
+const EMP_ID = 'emp-1'
+
+async function mockEmployeeApi(page: Page) {
+  const state = { department: { id: 'd1', name: 'Finance' } }
+  const departments = [state.department, { id: 'd2', name: 'Engineering' }]
+  await page.route('**/api/**', async (route) => {
+    const { pathname } = new URL(route.request().url())
+    if (pathname.endsWith('/structure')) {
+      state.department = departments[1]
+      return route.fulfill({ json: {} })
+    }
+    if (pathname.endsWith('/departments')) return route.fulfill({ json: departments })
+    if (pathname.endsWith('/jobs')) return route.fulfill({ json: [{ id: 'j1', name: 'Accountant' }] })
+    if (pathname.endsWith('/managers')) return route.fulfill({ json: [{ id: 'm1', name: 'Hannah Brooks' }] })
+    if (pathname.endsWith(`/employees/${EMP_ID}`)) {
+      return route.fulfill({
+        json: {
+          id: EMP_ID,
+          name: 'Priya Nair',
+          job: { id: 'j1', name: 'Accountant' },
+          department: state.department,
+          manager: { id: 'm1', name: 'Hannah Brooks' },
+          viewer: 'hr',
+        },
+      })
+    }
+    return route.fulfill({ json: {} })
+  })
+}
+
+test('HR changes an employee department', async ({ page }) => {
+  await mockEmployeeApi(page)
+  await page.goto(`/?employee=${EMP_ID}`)
+  await page.getByRole('link', { name: 'Items', includeHidden: true }).click()
+  await page.getByRole('button', { name: 'Change job, department or manager' }).click()
+
+  await page.getByLabel('Department').selectOption('')
+  await page.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByText("Choose a department. The record can't be saved without one.")).toBeVisible()
+
+  await page.getByLabel('Department').selectOption('d2')
+  await page.getByLabel('Effective date').fill('2024-03-01')
+  await page.getByRole('button', { name: 'Save changes' }).click()
+
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expect(page.getByRole('term').filter({ hasText: 'Department' })).toBeVisible()
+  await expect(page.getByText('Engineering', { exact: true })).toBeVisible()
+  await expect(page.getByRole('status')).toContainText('saved')
+})

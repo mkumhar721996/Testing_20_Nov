@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     # Stopgap for the caller's organisation until token verification exists (ADR-0004).
     # Required (no default) so a deployment that forgets API_DEFAULT_ORGANISATION_ID fails at startup.
     default_organisation_id: UUID
+    # Local development only: identify the caller from X-Dev-* headers. Never enable in a deployment.
+    trust_dev_caller_headers: bool = False
 
 
 settings = Settings()

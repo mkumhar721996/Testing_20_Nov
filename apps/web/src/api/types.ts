@@ -19,3 +19,33 @@ export type Dashboard = {
 }
 
 export type NewMovement = { itemId: string; quantity: number; direction: Direction }
+
+export type NamedRef = { id: string; name: string }
+
+export type Viewer = 'hr' | 'self' | 'manager'
+
+export type Employee = {
+  id: string
+  name: string
+  job: NamedRef | null
+  department: NamedRef
+  manager: NamedRef
+  viewer: Viewer
+}
+
+export type HistoryField = 'job' | 'department' | 'manager'
+
+export type HistoryEntry = {
+  id: string
+  field: HistoryField
+  from_name: string | null
+  to_name: string
+  effective_date: string
+}
+
+export type StructureUpdate = {
+  job_id: string | null
+  department_id: string | null
+  manager_id: string | null
+  effective_date: string | null
+}
